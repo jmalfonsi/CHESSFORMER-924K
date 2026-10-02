@@ -1,5 +1,25 @@
 # CHESSFORMER-924K
 
+## Performances Lichess au 01-10-2026
+
+Situation du compte [Chessformer-924K](https://lichess.org/@/Chessformer-924K)
+en fin de journée, heure de Paris :
+
+| Cadence | Classement Lichess |
+|---|---:|
+| Blitz | **1684** |
+| Rapide | **1715** |
+| Bullet | **1757** — provisoire |
+
+**Bilan cumulé, toutes cadences : 107 parties**, avec **50 victoires,
+24 nulles et 33 défaites**. Score : **57,9 %**, calculé avec
+`(victoires + 0,5 × nulles) / parties`.
+
+Ces chiffres sont arrêtés au 1er octobre 2026 ; les parties du 2 octobre sont
+exclues. Source : [historique des parties Lichess à cette date](https://lichess.org/api/games/user/Chessformer-924K?until=1790891999999&max=1000&rated=true&moves=false&clocks=false&opening=false).
+
+## Présentation
+
 Bot d’échecs de **924 164 paramètres** : un passage neuronal par coup, masque des
 coups légaux, puis choix du meilleur score. Cette version fournit les poids
 actuellement utilisés par [Chessformer-924K](https://lichess.org/@/Chessformer-924K),
