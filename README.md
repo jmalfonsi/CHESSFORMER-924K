@@ -1,114 +1,97 @@
 # CHESSFORMER-924K
 
-Projet mini indépendant, consacré aux modèles de moins d'un million de
-paramètres. Le candidat `geometric` contient **924 164 paramètres**. Le bot
-Lichess utilise le compte **Chessformer-924K** et un passage neuronal par coup.
+Bot d’échecs de **924 164 paramètres** : un passage neuronal par coup, masque des
+coups légaux, puis choix du meilleur score. Cette version fournit les poids
+actuellement utilisés par [Chessformer-924K](https://lichess.org/@/Chessformer-924K),
+pour jouer avec votre propre compte BOT.
 
-Le projet **CHESSFORMER-143M** reste dans [`../CHESSFORMER`](../CHESSFORMER).
-Ce dossier possède son propre code, son environnement Python, ses données,
-ses checkpoints, ses rapports et sa configuration Lichess.
+## Installation
 
-## Installation et vérification
-
-L'environnement `.venv` local est déjà préparé. Pour une nouvelle installation :
+Linux, ou macOS 14+ sur Apple Silicon, avec Bash et Python **3.12 ou plus**.
+Le bot joue sur CPU.
+Les versions des dépendances sont fixées à celles de la référence actuelle.
 
 ```bash
+git clone https://github.com/jmalfonsi/CHESSFORMER-924K.git
+cd CHESSFORMER-924K
 python3 -m venv .venv
-.venv/bin/python -m pip install -e '.[dev,modal]'
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install torch==2.13.0 --index-url https://download.pytorch.org/whl/cpu
+.venv/bin/python -m pip install -e .
+cp .env.example .env
 ```
 
-Utiliser l'interpréteur de ce dossier, car les deux projets conservent le nom
-de package Python `chessformer` pour la compatibilité des commandes et modèles.
+## Votre compte Lichess
 
-```bash
-.venv/bin/python -m pytest
-.venv/bin/python -m chessformer.mini.train --help
-.venv/bin/python -m chessformer.mini.compare --help
+Utilisez un compte **BOT dédié**. Pour en créer un, le compte ne doit avoir joué
+aucune partie ; sa [conversion en BOT](https://lichess.org/api#tag/Bot/operation/botAccountUpgrade)
+est irréversible.
+
+Connecté à ce compte, créez un [token personnel](https://lichess.org/account/oauth/token/create)
+avec les permissions **bot:play** (« Play bot moves ») et **challenge:write**
+(« Create, accept, decline challenges »). Renseignez `.env` :
+
+```dotenv
+LICHESS_ACCOUNT_MINI=VotreNomDeBot
+LICHESS_TOKEN_MINI=votre_token_personnel
 ```
 
-## Organisation
+Le bot et le ladder utilisent cette même configuration et vérifient que le token
+appartient au nom indiqué et que le compte porte le titre BOT. Les variables
+exportées dans le shell prennent priorité sur `.env`. Le fichier `.env` est
+ignoré par Git ; gardez votre token privé.
 
-| Emplacement | Contenu |
-|---|---|
-| `src/chessformer/mini/` | Réseaux mini, données, entraînement, joueur, UCI et bot |
-| `src/chessformer/*.py` | Copies locales des modules nécessaires : encodage, shards, pertes, matchs et transport Lichess |
-| `train_mini_modal.py` | Entraînements mini sur Modal |
-| `modal_support.py` | Image et fonctions Modal locales, sans import du lanceur 143M |
-| `tools/run_mini*.sh` | Lancement depuis ce dossier, même avec un autre répertoire courant |
-| `data/mini-*` | Corpus mini, y compris `mini-130m` |
-| `checkpoints/mini-*` | Checkpoints des expériences mini |
-| `docs/` | Protocole, mesures et rapports mini |
-| `logs/` | Journaux mini |
+## Jouer et lancer le ladder
 
-Les modules issus du socle commun sont des fichiers indépendants, sans lien
-vers le code 143M. Ils permettent notamment la distillation facultative d'un
-professeur 143M hors partie et réutilisent le transport Lichess. Le joueur mini
-reste défini dans `chessformer.mini.player`.
-
-## Entraînement et évaluation
-
-```bash
-.venv/bin/python -m chessformer.mini.train \
-  --candidate geometric --data data/mini-pilot-5m \
-  --output checkpoints/mini-new-run --device cuda \
-  --epochs 3 --batch-size 256 --lr 3e-4
-
-.venv/bin/python -m chessformer.mini.ladder \
-  --model geometric=checkpoints/mini-long-geometric-20260910/models/geometric/best.pt \
-  --opponents material1 stockfish1320 --stockfish tools/stockfish \
-  --output docs/mini-new-ladder.json
-```
-
-Le [protocole et l'historique des expériences](docs/MINI_PILOT.md) détaillent
-les candidats, la préparation des corpus et les résultats.
-
-Les corpus préparés sont disponibles dans ce dossier. Pour régénérer un corpus
-depuis les annotations Stockfish d'origine, sélectionner explicitement la source :
-
-```bash
-.venv/bin/python -m chessformer.mini.data \
-  --source /home/ubuntu/CHESSFORMER/data/eval-d3-multipv \
-  --output data/mini-new-data
-```
-
-Cette importation facultative de données n'est nécessaire ni à l'utilisation
-des corpus existants ni au jeu. Les chemins de provenance contenus dans les
-manifestes et les rapports historiques restent ceux enregistrés lors des runs ;
-ils sont conservés pour préserver les empreintes des datasets et les reprises.
-
-## Compte Lichess
-
-`.env` contient uniquement `LICHESS_TOKEN_MINI` et les identifiants Modal.
-Le token du compte 143M reste dans l'autre projet. Le bot et le script de
-challenges vérifient le compte Chessformer-924K avant toute partie.
+Dans un premier terminal, laissez le bot connecté :
 
 ```bash
 tools/run_mini_bot.sh
-tools/run_mini_ladder.sh --rounds 1 --min-rating 1400 --max-rating 1900
 ```
 
-Le bot doit être lancé une seule fois. Le 2 octobre 2026, l’ancien processus
-a été arrêté et le bot a été relancé depuis ce dossier avec son propre `.venv`,
-le même checkpoint et les mêmes paramètres de jeu. Un tour de ladder blitz
-3+2 a été lancé et les coups ont été vérifiés dans le journal local.
-Le bot a ensuite été arrêté à la demande de l'utilisateur à 18 h 46 (Paris).
-Les futurs lancements utilisent `tools/run_mini_bot.sh` de ce projet.
+Dans un second terminal, depuis le même dossier :
 
-## Modal
+```bash
+tools/run_mini_ladder.sh
+```
 
-L'application reste `chessformer-mini`. Les jeux de données et runs distants
-existants restent dans le volume historique `chessformer-v1`, sous les noms
-`mini-*`. La séparation locale ne migre pas ce volume et ne lance aucun calcul.
-Utiliser des noms `mini-*` pour les futurs datasets et runs de ce projet.
+Le ladder propose **une ronde de trois adversaires**, choisis parmi les bots
+en ligne entre **1400 et 2100 Elo blitz**, avec au moins 300 parties classées
+et un classement établi. Les parties sont classées, en **3 minutes + 2 secondes**,
+et se suivent une par une. Les adversaires peuvent refuser ; le ladder nécessite
+que votre bot reste connecté dans le premier terminal.
 
-Le [plan pour viser 2000 Lichess blitz en 48 heures](docs/PLAN_2000_ELO_48H_2026-10-02.md)
-documente les résultats, les limites et l'essai B300 autorisé sous 40 $.
-`train_mini_b300_modal.py` conserve une échéance cumulée après préemption ;
-`tools/monitor_mini_b300.py` arrête ce run à son échéance et évalue ses poids
-localement, en gardant le bot hors ligne.
+Pour prolonger la session ou changer les adversaires :
 
-## Séparation du 2 octobre 2026
+```bash
+tools/run_mini_ladder.sh --rounds 10 --size 10 --min-rating 1500 --max-rating 2000
+```
 
-Le [journal de séparation](docs/PROJECT_SEPARATION.md) décrit le périmètre,
-les sauvegardes et la validation. Les données et les checkpoints ont été
-déplacés sur le même disque, avec conservation des fichiers et des liens durs.
+`Ctrl+C` arrête le programme du terminal concerné. Arrêter le ladder laisse le
+bot connecté ; attendez la fin des parties avant d’arrêter le bot. Les journaux
+du bot sont enregistrés dans `logs/`.
+
+## Modèle fourni
+
+`models/chessformer-924k-v1.pt` contient les poids d’inférence actuels, sans état
+d’optimiseur. Son empreinte et sa configuration figurent dans
+[models/manifest.json](models/manifest.json).
+
+Les réglages par défaut conservent le jeu actuel : température **0**, un thread
+CPU, au plus cinq parties simultanées ; un coup causant une troisième répétition
+est écarté lorsque la tête de valeur évalue la position au-dessus de zéro.
+Le nom du compte ne change ni les poids ni les décisions du réseau. Le classement
+de votre compte se construit avec ses propres parties.
+
+Un autre checkpoint compatible peut être choisi explicitement :
+
+```bash
+tools/run_mini_bot.sh chemin/vers/best.pt
+```
+
+## Vérification locale
+
+```bash
+.venv/bin/python -m pip install -e '.[dev]'
+.venv/bin/python -m pytest
+```

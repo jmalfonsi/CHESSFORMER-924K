@@ -1,0 +1,23 @@
+{
+  "checkpoint": "chessformer-924k-v1.pt",
+  "sha256": "fc7ed7450be63ba4bab7e9658442be0bf6239a6ec1f91e2d799eab70792b0761",
+  "parameters": 924164,
+  "format": "chessformer-mini-v1",
+  "input_format": "canonical_pieces_castling_ep_v1",
+  "config": {
+    "architecture": "geometric",
+    "width": 96,
+    "layers": 8,
+    "heads": 4,
+    "ff_width": 256,
+    "policy_dim": 64,
+    "value_bins": 64
+  },
+  "playing_settings": {
+    "temperature": 0.0,
+    "sample_plies": 20,
+    "avoid_repetition": 0.0,
+    "threads": 1,
+    "max_games": 5
+  }
+}

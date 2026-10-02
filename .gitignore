@@ -1,0 +1,14 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+data/
+checkpoints/
+*.pt
+!models/chessformer-924k-v1.pt
+logs/
+nohup.out
