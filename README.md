@@ -5,6 +5,10 @@ coups légaux, puis choix du meilleur score. Cette version fournit les poids
 actuellement utilisés par [Chessformer-924K](https://lichess.org/@/Chessformer-924K),
 pour jouer avec votre propre compte BOT.
 
+Le [guide de fonctionnement du 924K](docs/FONCTIONNEMENT_924K.md) explique
+son architecture, sa force et le traitement des sorties du réseau : coups
+légaux, valeur, répétitions et sélection du coup.
+
 ## Installation
 
 Linux, ou macOS 14+ sur Apple Silicon, avec Bash et Python **3.12 ou plus**.
